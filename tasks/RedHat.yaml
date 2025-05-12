@@ -1,0 +1,40 @@
+---
+# RehHat tasks file for ansible-role-suricata
+
+- name: "Install the EPEL Repository (yum)"
+  yum:
+    name: "epel-release"
+    state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: "Install the EPEL Repository (dnf)"
+  dnf:
+    name: "epel-release"
+    state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: "Install the copr plugin for yum"
+  yum:
+    name: "yum-plugin-copr"
+    state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: "Install the dnf core plugins (dnf)"
+  dnf:
+    name: "dnf-plugins-core"
+    state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: "Enable Suricata Packages via copr (yum)"
+  shell: yum copr enable @oisf/suricata-7.0
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: "Enable Suricata Packages via copr (dnf)"
+  shell: dnf copr enable @oisf/suricata-7.0
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
