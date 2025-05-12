@@ -30,11 +30,25 @@
     - ansible_facts['pkg_mgr'] == 'dnf'
 
 - name: "Enable Suricata Packages via copr (yum)"
-  shell: yum copr enable @oisf/suricata-7.0
+  shell: yum -y copr enable @oisf/suricata-6.0
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
 
 - name: "Enable Suricata Packages via copr (dnf)"
-  shell: dnf copr enable @oisf/suricata-7.0
+  shell: dnf -y copr enable @oisf/suricata-7.0
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: "Install Suricata (yum)"
+  yum:
+    name: "suricata"
+    state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: "Install Suricata (dnf)"
+  dnf:
+    name: "suricata"
+    state: present
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
