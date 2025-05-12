@@ -31,8 +31,8 @@
 
 - name: "Enable Suricata Packages via copr (yum)"
 #  shell: yum -y copr enable @oisf/suricata-6.0
-  yum:
-    name: "oisf/suricata-6.0"
+  copr:
+    name: "@oisf/suricata-6.0"
     state: present
   when:
     - ansible_facts['pkg_mgr'] == 'yum'
