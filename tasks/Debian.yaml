@@ -1,0 +1,21 @@
+---
+# Debian tasks file for ansible-role-suricata
+
+- name: "Install the software-properties-common package"
+  apt:
+    name: "software-properties-common"
+    state: present
+
+- name: "Add the Suricata PPA Repository"
+  apt_repository:
+    repo: "ppa:oisf/suricata-stable"
+    state: present
+
+- name: "Update apt cache"
+  apt:
+    update_cache: true
+
+- name: "Install Suricata"
+  apt:
+    name: "suricata"
+    state: present
