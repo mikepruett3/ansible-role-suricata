@@ -1,5 +1,5 @@
 ---
-# RedHat tasks file for ansible-role-suricata
+# Rocky Linux tasks file for ansible-role-suricata
 
 - name: "Install the EPEL Repository (yum)"
   yum:
