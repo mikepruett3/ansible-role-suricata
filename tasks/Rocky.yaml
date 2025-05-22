@@ -14,7 +14,13 @@
 - name: "Enable Suricata Packages via copr"
   shell: dnf -y copr enable @oisf/suricata-7.0
 
-- name: "Install Suricata (dnf)"
+- name: "Install Suricata"
   dnf:
     name: "suricata"
     state: present
+
+- name: "Reboot after Install"
+  reboot:
+    reboot_timeout: 3600
+  when:
+    - install.changed
