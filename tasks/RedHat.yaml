@@ -46,28 +46,12 @@
   yum:
     name: "suricata"
     state: present
-  register: install
   when:
-    - ansible_facts['pkg_mgr'] == 'yum'
-
-- name: "Reboot after Install (yum)"
-  reboot:
-    reboot_timeout: 3600
-  when:
-    - install.changed
     - ansible_facts['pkg_mgr'] == 'yum'
 
 - name: "Install Suricata (dnf)"
   dnf:
     name: "suricata"
     state: present
-  register: install
   when:
-    - ansible_facts['pkg_mgr'] == 'dnf'
-
-- name: "Reboot after Install (dnf)"
-  reboot:
-    reboot_timeout: 3600
-  when:
-    - install.changed
     - ansible_facts['pkg_mgr'] == 'dnf'

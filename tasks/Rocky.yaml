@@ -18,10 +18,3 @@
   dnf:
     name: "suricata"
     state: present
-  register: install
-
-- name: "Reboot after Install"
-  reboot:
-    reboot_timeout: 3600
-  when:
-    - install.changed
