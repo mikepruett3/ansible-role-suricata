@@ -1,0 +1,23 @@
+---
+# RedHat tasks file for ansible-role-suricata
+
+- name: "Install Suricata (yum)"
+  yum:
+    name: "suricata"
+    state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'yum'
+
+- name: "Install Suricata (dnf)"
+  dnf:
+    name: "suricata"
+    state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'dnf'
+
+- name: "Install Suricata (apt)"
+  apt:
+    name: "suricata"
+    state: present
+  when:
+    - ansible_facts['pkg_mgr'] == 'apt'

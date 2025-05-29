@@ -1,5 +1,17 @@
 ---
 # tasks file for ansible-role-suricata
 
-- name: "Import Distribution Prerequisites"
+- name: "Include tasks from assert playbook"
+  include_tasks: assert.yaml
+
+- name: "Include tasks from lookup playbook"
+  include_tasks: lookup.yaml
+
+- name: "Include tasks from Distribution Prerequisites playbook"
   include_tasks: "{{ ansible_facts['os_family'] }}.yaml"
+
+- name: "Include tasks from install playbook"
+  include_tasks: install.yaml
+  when:
+    - target is defined
+    - target is string

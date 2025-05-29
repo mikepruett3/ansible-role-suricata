@@ -1,0 +1,22 @@
+---
+# Lookup tasks file for ansible-role-suricata
+
+- name: "Set fact for version (Production)"
+  set_fact:
+    version: "7.0"
+  when:
+    - target == "production"
+    - ansible_distribution_major_version >= '8'
+
+- name: "Set fact for version (Legacy)"
+  set_fact:
+    version: "6.0"
+  when:
+    - target == "production"
+    - ansible_distribution_major_version <= '7'
+
+- name: "Set fact for version (Development)"
+  set_fact:
+    version: "devel"
+  when:
+    - target == "development"

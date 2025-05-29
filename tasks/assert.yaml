@@ -1,0 +1,9 @@
+---
+# Assert tasks file for ansible-role-suricata
+
+- name: "Test if Target is set correctly"
+  assert:
+    that:
+      - target is defined
+      - target is string
+    quiet: yes

@@ -12,9 +12,4 @@
     state: present
 
 - name: "Enable Suricata Packages via copr"
-  shell: dnf -y copr enable @oisf/suricata-7.0
-
-- name: "Install Suricata"
-  dnf:
-    name: "suricata"
-    state: present
+  shell: dnf -y copr enable @oisf/suricata-{{ version }}

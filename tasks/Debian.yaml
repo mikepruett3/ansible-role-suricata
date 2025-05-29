@@ -14,8 +14,3 @@
 - name: "Update apt cache"
   apt:
     update_cache: true
-
-- name: "Install Suricata"
-  apt:
-    name: "suricata"
-    state: present
