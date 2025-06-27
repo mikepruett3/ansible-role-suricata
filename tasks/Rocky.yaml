@@ -11,5 +11,13 @@
     name: "dnf-plugins-core"
     state: present
 
-- name: "Enable Suricata Packages via copr"
+- name: "Enable Suricata Packages via copr (Standard)"
   shell: dnf -y copr enable @oisf/suricata-{{ version }}
+  when: not proxy | bool
+
+- name: "Enable Suricata Packages via copr (Proxy)"
+  shell: dnf -y copr enable @oisf/suricata-{{ version }}
+  environment:
+    http_proxy: "{{ proxy_protocol }}://{{ proxy_username }}@{{ proxy_password }}/{{ proxy_host }}:{{ proxy_port }}"
+    https_proxy: "{{ proxy_protocol }}://{{ proxy_username }}@{{ proxy_password }}/{{ proxy_host }}:{{ proxy_port }}"
+  when: proxy | bool

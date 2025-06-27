@@ -2,3 +2,10 @@
 # defaults file for ansible-role-suricata
 
 target: "production"
+
+proxy: false
+proxy_host: "myproxyserver.example.com"
+proxy_protocol: "http"
+proxy_username: "myuser"
+proxy_password: "mypassword"
+proxy_port: "3128"
