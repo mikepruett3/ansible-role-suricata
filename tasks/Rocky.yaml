@@ -18,6 +18,6 @@
 - name: "Enable Suricata Packages via copr (Proxy)"
   shell: dnf -y copr enable @oisf/suricata-{{ version }}
   environment:
-    http_proxy: "{{ proxy_protocol }}://{{ proxy_username }}@{{ proxy_password }}/{{ proxy_host }}:{{ proxy_port }}"
-    https_proxy: "{{ proxy_protocol }}://{{ proxy_username }}@{{ proxy_password }}/{{ proxy_host }}:{{ proxy_port }}"
+    http_proxy: "{{ proxy_protocol }}://{{ proxy_username }}:{{ proxy_password }}@{{ proxy_host }}:{{ proxy_port }}"
+    https_proxy: "{{ proxy_protocol }}://{{ proxy_username }}:{{ proxy_password }}@{{ proxy_host }}:{{ proxy_port }}"
   when: proxy | bool
