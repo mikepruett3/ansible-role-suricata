@@ -60,7 +60,7 @@
   #ignore_errors: true
 
 - name: "Force systemd to reread configs"
-  systemd_service:
+  systemd:
     daemon_reload: true
 
 - name: "Start Suricata IDS interface daemons"
