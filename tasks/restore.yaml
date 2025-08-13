@@ -17,6 +17,14 @@
          | reject('equalto', 'suricata.service')
          | list
       }}
+    suricata_interfaces: >-
+      {{ output.files
+         | map(attribute='path')
+         | map('basename')
+         | map('split', '-')
+         | map('nth', 1) |
+         | list
+      }}
 
 #- name: "Stop Suricata daemons"
 #  service:
@@ -32,7 +40,7 @@
 - name: "Delete files in /data/ids/interface/"
   shell: find /data/ids/{{ item }} -mindepth 1 -print
   ignore_errors: true
-  loop: "{{ systemd_services | map('split', '-') | map('nth', 1) | list }}"
+  loop: "{{ suricata_interfaces }}"
 
 #- name: "Restore backup of /etc/suricata"
 #  unarchive:
