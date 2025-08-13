@@ -2,7 +2,6 @@
 # defaults file for ansible-role-suricata
 
 target: "production"
-systemd_services: []
 
 proxy: false
 proxy_host: "myproxyserver.example.com"
