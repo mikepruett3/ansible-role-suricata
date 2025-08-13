@@ -20,8 +20,8 @@
 
 - name: "Set fact for found Suricata Interfaces"
   set_fact:
-    suricata_interfaces: "{{ suricata_interfaces | default([]) + [item.path.split('-')[1]] }}"
-  loop: "{{ output.files }}"
+    suricata_interfaces: "{{ suricata_interfaces | default([]) + [item.split('-')[1]] }}"
+  loop: "{{ systemd_services }}"
 
 #- name: "Stop Suricata daemons"
 #  service:
