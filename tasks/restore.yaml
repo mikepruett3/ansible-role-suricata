@@ -12,3 +12,6 @@
   set_fact:
     systemd_services: systemd_services + "{{ item.path | basename }}"
   with_items: "{{ output.files }}"
+
+- debug:
+    var: systemd_services
