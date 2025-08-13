@@ -15,3 +15,9 @@
   when:
     - target is defined
     - target is string
+
+- name: "Include tasks from restore playbook"
+  include_tasks: restore.yaml
+  when:
+    - restore is defined
+    - restore

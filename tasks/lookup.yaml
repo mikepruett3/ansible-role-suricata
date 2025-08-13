@@ -20,3 +20,20 @@
     version: "devel"
   when:
     - target == "development"
+
+- name: "Collect stats of archive_file"
+  stat:
+    path: "{{ archive_file }}"
+  register: output
+  when:
+    - archive_file is defined
+    - archive_file is string
+
+- name: "Set fact for restore if archive_file exists"
+  set_fact:
+    restore: true
+  when:
+    - archive_file is defined
+    - archive_file is string
+    - output.stat.exists
+    - output.stat.isreg
