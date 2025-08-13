@@ -17,14 +17,11 @@
          | reject('equalto', 'suricata.service')
          | list
       }}
-    suricata_interfaces: >-
-      {{ output.files
-         | map(attribute='path')
-         | map('basename')
-         | map('split', '-')
-         | map('nth', 1)
-         | list
-      }}
+
+- name: "Set fact for found Suricata Interfaces"
+  set_fact:
+    suricata_interfaces: "{{ suricata_interfaces | default([]) + [item.path.split('-')[1]] }}"
+  loop: "{{ output.files }}"
 
 #- name: "Stop Suricata daemons"
 #  service:
