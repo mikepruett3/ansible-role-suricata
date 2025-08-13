@@ -10,7 +10,7 @@
 
 - name: "Set fact for found Suricata systemd unit files"
   set_fact:
-    systemd_services: "{{ output.files | map(attribute='path') | map('basename') | list | reject('match', '^suricata.service$') }}"
+    systemd_services: "{{ output.files | map(attribute='path') | map('basename') | list }}"
 
 - debug:
     var: systemd_services
