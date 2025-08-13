@@ -18,5 +18,38 @@
          | list
       }}
 
-- debug:
-    var: systemd_services
+#- name: "Stop Suricata daemons"
+#  service:
+#    name: "{{ item }}"
+#    state: stopped
+#  #ignore_errors: true
+#  loop: "{{ systemd_services }}"
+
+#- name: "Delete files in /etc/suricata"
+#  shell: find /etc/suricata -mindepth 1 -print -delete
+#  ignore_errors: true
+
+- name: "Delete files in /data/ids/interface/"
+  shell: find /data/ids/{{ item }} -mindepth 1 -print
+  ignore_errors: true
+  loop: "{{ systemd_services | map('split', '-') | map('nth', 1) | list }}"
+
+#- name: "Restore backup of /etc/suricata"
+#  unarchive:
+#    src: "{{ archive_file }}"
+#    dest: /etc/suricata
+#    owner: "ansible"
+#    group: "ansible"
+#    remote_src: true
+#  ignore_errors: true
+
+#- name: "Force systemd to reread configs"
+#  systemd_service:
+#    daemon_reload: true
+
+#- name: "Start Suricata IDS interface daemons"
+#  service:
+#    name: "{{ item }}"
+#    state: started
+#  #ignore_errors: true
+#  loop: "{{ systemd_services }}"
