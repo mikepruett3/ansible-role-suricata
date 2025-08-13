@@ -11,7 +11,7 @@
 - name: "Set fact for found Suricata systemd unit files"
   set_fact:
     systemd_services: "{{ systemd_services | default([]) | union(item) }}"
-  with_items: "{{ output.files.path }}"
+  with_items: "{{ output.files }}"
 
 - debug:
     var: systemd_services
