@@ -34,10 +34,21 @@
 #  shell: find /etc/suricata -mindepth 1 -print -delete
 #  ignore_errors: true
 
-- name: "Delete files in /data/ids/interface/"
-  shell: find /data/ids/{{ item }} -mindepth 1 -print
+- name: "Collect stats of output_directory"
+  stat:
+    path: "{{ output_directory }}"
+  register: output
+  when:
+    - output_directory is defined
+    - output_directory is string
+
+- name: "Delete files in output_directory"
+  shell: find {{ output_directory }}/{{ item }} -mindepth 1 -print
   ignore_errors: true
   loop: "{{ suricata_interfaces }}"
+  when:
+    - output.stat.exists
+    - output.stat.isdir
 
 #- name: "Restore backup of /etc/suricata"
 #  unarchive:
