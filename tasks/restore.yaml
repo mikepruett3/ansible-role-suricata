@@ -22,7 +22,7 @@
          | map(attribute='path')
          | map('basename')
          | map('split', '-')
-         | map('nth', 1) |
+         | map('nth', 1)
          | list
       }}
 
