@@ -67,5 +67,5 @@
   service:
     name: "{{ item }}"
     state: started
-  #ignore_errors: true
+  ignore_errors: true
   loop: "{{ systemd_services }}"
