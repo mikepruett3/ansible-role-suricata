@@ -59,6 +59,18 @@
     remote_src: true
   #ignore_errors: true
 
+- name: "Find files with .rpmsave extension in /etc/suricata"
+  find:
+    paths: /etc/suricata
+    patterns: "*.rpmsave"
+    file_type: file
+  register: rpmsave_files
+
+- name: "Rename .rpmsave files by removing the extension"
+  command: mv "{{ item.path }}" "{{ item.path | regex_replace('\.rpmsave$', '') }}"
+  loop: "{{ rpmsave_files.files }}"
+  when: rpmsave_files.matched > 0
+
 - name: "Force systemd to reread configs"
   systemd:
     daemon_reload: true
