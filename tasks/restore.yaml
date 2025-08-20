@@ -54,8 +54,8 @@
   unarchive:
     src: "{{ archive_file }}"
     dest: /etc/suricata
-    owner: "ansible"
-    group: "ansible"
+    owner: "{{ suricata_user }}"
+    group: "{{ suricata_group }}"
     remote_src: true
   #ignore_errors: true
 

@@ -3,6 +3,9 @@
 
 target: "production"
 
+suricata_user: "suricata"
+suricata_group: "suricata"
+
 proxy: false
 proxy_host: "myproxyserver.example.com"
 proxy_protocol: "http"
