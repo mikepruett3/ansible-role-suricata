@@ -27,7 +27,7 @@
     key: "{{ suricata_group }}"
   register: group_check
   #failed_when: group_check.failed
-  failed_when: false
+  ignore_errors: true
   changed_when: false
 
 - name: "Fail if {{ suricata_group }} group does not exist"
