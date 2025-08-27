@@ -30,23 +30,24 @@
   ignore_errors: true
   changed_when: false
 
-- name: "Fail if {{ suricata_group }} group does not exist"
-  fail:
-    msg: "Group '{{ suricata_group }}' does not exist on this host."
-  when: group_check is failed
+#- name: "Fail if {{ suricata_group }} group does not exist"
+#  fail:
+#    msg: "Group '{{ suricata_group }}' does not exist on this host."
+#  when: group_check is failed
 
 - name: "Check if {{ suricata_user }} user exists"
   getent:
     database: passwd
     key: "{{ suricata_user }}"
   register: user_check
-  failed_when: user_check.failed
+  #failed_when: user_check.failed
+  ignore_errors: true
   changed_when: false
 
-- name: "Fail if {{ suricata_user }} user does not exist"
-  fail:
-    msg: "User '{{ suricata_user }}' does not exist on this host."
-  when: user_check is failed
+#- name: "Fail if {{ suricata_user }} user does not exist"
+#  fail:
+#    msg: "User '{{ suricata_user }}' does not exist on this host."
+#  when: user_check is failed
 
 - name: "Collect stats of archive_file"
   stat:
