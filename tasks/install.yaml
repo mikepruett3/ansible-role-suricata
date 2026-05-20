@@ -10,8 +10,7 @@
 
 - name: "Install Suricata (dnf)"
   dnf:
-    name: "suricata"
-    nobest: true
+    name: "suricata-7.0.15"
     state: present
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
