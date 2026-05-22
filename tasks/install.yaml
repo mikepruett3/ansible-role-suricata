@@ -9,9 +9,11 @@
     - ansible_facts['pkg_mgr'] == 'yum'
 
 - name: "Install Suricata (dnf)"
-  dnf:
-    name: "suricata-{{ suricata_version }}"
-    state: present
+  shell: dnf install -y --nobest suricata
+  args:
+    warn: false
+  register: dnf_suricata_install
+  changed_when: "'Nothing to do' not in dnf_suricata_install.stdout"
   when:
     - ansible_facts['pkg_mgr'] == 'dnf'
 
