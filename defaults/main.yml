@@ -6,6 +6,8 @@ target: "production"
 suricata_user: "suricata"
 suricata_group: "suricata"
 
+suricata_version: "7.0.15"
+
 proxy: false
 proxy_host: "myproxyserver.example.com"
 proxy_protocol: "http"
