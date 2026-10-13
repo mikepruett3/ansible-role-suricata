@@ -14,3 +14,11 @@ proxy_protocol: "http"
 proxy_username: "myuser"
 proxy_password: "mypassword"
 proxy_port: "3128"
+
+# Some hosts have no direct route to the internet at all (not even a proxy
+# to go through) but do have an inventory host reachable from the control
+# node that can be delegated to for anything network-dependent -- e.g. a
+# QC behind a restrictive customer firewall, with ansible1.atriskcloud.net
+# as the delegate. Leave blank (the default) to install normally. See
+# "Enable Suricata Packages via copr (Relay)" in tasks/Rocky.yaml.
+relay_host: ""

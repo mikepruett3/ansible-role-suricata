@@ -18,12 +18,23 @@
   register: copr
   ignore_errors: true
 
+# In relay mode no copr repo is ever registered on this host (see below), so
+# `copr.stdout` can never match and this check is the only way a later run
+# knows Suricata is already installed -- without it, every subsequent run
+# would redo the full download-and-relay dance for no reason.
+- name: "Check if Suricata is already installed"
+  command: rpm -q suricata
+  register: suricata_already_installed
+  ignore_errors: true
+  changed_when: false
+
 - name: "Enable Suricata Packages via copr (Standard)"
   shell: dnf -y copr enable @oisf/suricata-{{ version }}
   args:
     warn: false
   when:
     - not proxy | bool
+    - relay_host | default('') | length == 0
     - copr.stdout is not search('suricata-' + version)
 
 - name: "Enable Suricata Packages via copr (Proxy)"
@@ -35,4 +46,126 @@
     https_proxy: "{{ proxy_protocol }}://{{ proxy_username }}:{{ proxy_password }}@{{ proxy_host }}:{{ proxy_port }}"
   when:
     - proxy | bool
+    - relay_host | default('') | length == 0
     - copr.stdout is not search('suricata-' + version)
+
+# Some hosts (e.g. a QC behind a restrictive customer firewall) have no
+# route to copr.fedorainfracloud.org or download.copr.fedorainfracloud.org
+# at all -- confirmed live on QC 549 (2026-10-13): both the repo-metadata
+# host and the RPM-serving host time out ("Network is unreachable" /
+# connection timeout). relay_host has internet access and is reachable
+# from the control node (confirmed live: ansible1 -> jumper1.gradientcyber.net
+# as the `ansible` user, with sudo), so the repo is enabled and the package
+# + its dependencies are downloaded there, then relayed through the control
+# node and installed from local files -- no network access needed on this
+# host at all, and no copr repo definition is ever written here.
+#
+# relay_host is a THIRD host, not the control node itself (unlike the
+# biflow-kafka-exporter wheel relay, which delegates to ansible1 -- the
+# control node). copy:'s `src` only ever reads from the control node's own
+# filesystem, even under delegate_to, so files on relay_host must be
+# fetched to the control node first (fetch:), then pushed from there to
+# this host (copy:) -- a straight delegate_to + copy: silently copies
+# nothing, confirmed live 2026-10-13.
+- name: "Install Suricata via relay host (copr unreachable from this host)"
+  when:
+    - relay_host | default('') | length > 0
+    - copr.stdout is not search('suricata-' + version)
+    - suricata_already_installed.rc != 0
+  block:
+    - name: "Enable Suricata copr repo on the relay host"
+      shell: dnf -y copr enable @oisf/suricata-{{ version }}
+      args:
+        warn: false
+      delegate_to: "{{ relay_host }}"
+
+    - name: "Create a temporary RPM cache directory on the relay host"
+      tempfile:
+        state: directory
+        suffix: suricata-rpms
+      register: suricata_rpm_cache
+      delegate_to: "{{ relay_host }}"
+
+    - name: "Make the RPM cache directory readable for the controller-side fetch"
+      # tempfile creates directories 0700 root:root (become runs this task
+      # as root). The fetch below reads this path as the unprivileged
+      # ansible-playbook user, not root -- become only elevates the
+      # relay-host half of the connection. Confirmed live 2026-10-13 (same
+      # bug as the biflow-kafka-exporter wheel relay): without this, that
+      # read silently finds nothing readable.
+      file:
+        path: "{{ suricata_rpm_cache.path }}"
+        mode: '0755'
+      delegate_to: "{{ relay_host }}"
+
+    - name: "Download Suricata and its dependencies as RPMs on the relay host"
+      # --resolve (not --alldeps): --alldeps pulls the *entire* dependency
+      # closure as if installing onto a bare system -- confirmed live
+      # 2026-10-13, it downloaded 111 packages including base-system ones
+      # (bash, coreutils, rocky-release, rocky-repos) the QC already has,
+      # risking overwriting the QC's own repo definitions with the relay
+      # host's. --resolve alone only pulls what isn't already satisfied on
+      # the relay host itself -- 5 packages (suricata + dpdk,
+      # libnetfilter_queue, hiredis, hyperscan) on a stock Rocky 9 box,
+      # matching what the QC (same OS) actually still needs.
+      shell: >-
+        dnf download --resolve -y
+        --destdir={{ suricata_rpm_cache.path }}
+        suricata
+      args:
+        warn: false
+      delegate_to: "{{ relay_host }}"
+
+    - name: "List the downloaded RPMs on the relay host"
+      find:
+        paths: "{{ suricata_rpm_cache.path }}"
+        patterns: "*.rpm"
+      register: suricata_rpm_files
+      delegate_to: "{{ relay_host }}"
+
+    - name: "Create a local RPM cache directory on the control node"
+      tempfile:
+        state: directory
+        suffix: suricata-rpms-local
+      register: suricata_local_cache
+      delegate_to: localhost
+
+    - name: "Fetch each RPM from the relay host to the control node"
+      fetch:
+        src: "{{ item.path }}"
+        dest: "{{ suricata_local_cache.path }}/"
+        flat: true
+      loop: "{{ suricata_rpm_files.files }}"
+      loop_control:
+        label: "{{ item.path | basename }}"
+      delegate_to: "{{ relay_host }}"
+
+    - name: "Copy the relayed RPMs to this host"
+      copy:
+        src: "{{ suricata_local_cache.path }}/"
+        dest: /tmp/suricata-rpms/
+        mode: '0644'
+
+    - name: "Install Suricata from the relayed RPMs (dnf)"
+      shell: dnf install -y --nobest /tmp/suricata-rpms/*.rpm
+      args:
+        warn: false
+      register: suricata_relay_install
+      changed_when: "'Nothing to do' not in suricata_relay_install.stdout"
+
+    - name: "Remove the temporary RPM cache from this host"
+      file:
+        path: /tmp/suricata-rpms
+        state: absent
+
+    - name: "Remove the local RPM cache from the control node"
+      file:
+        path: "{{ suricata_local_cache.path }}"
+        state: absent
+      delegate_to: localhost
+
+    - name: "Remove the temporary RPM cache from the relay host"
+      file:
+        path: "{{ suricata_rpm_cache.path }}"
+        state: absent
+      delegate_to: "{{ relay_host }}"
