@@ -131,11 +131,18 @@
       delegate_to: localhost
 
     - name: "Fetch each RPM from the relay host to the control node"
+      # default([]): when the whole block's `when:` is False (Suricata
+      # already installed), every task in it is skipped, including "List
+      # the downloaded RPMs..." above -- so suricata_rpm_files is entirely
+      # undefined here, not an empty list. Looping over an undefined
+      # variable still tries to template loop_control.label against a
+      # phantom null item before applying the skip, and item.path on that
+      # fails instead of skipping cleanly. Confirmed live 2026-10-13.
       fetch:
         src: "{{ item.path }}"
         dest: "{{ suricata_local_cache.path }}/"
         flat: true
-      loop: "{{ suricata_rpm_files.files }}"
+      loop: "{{ suricata_rpm_files.files | default([]) }}"
       loop_control:
         label: "{{ item.path | basename }}"
       delegate_to: "{{ relay_host }}"
