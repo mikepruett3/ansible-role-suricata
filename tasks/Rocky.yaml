@@ -13,8 +13,6 @@
 
 - name: "Check if Suricata copr repository enabled"
   shell: dnf copr list --enabled
-  args:
-    warn: false
   register: copr
   ignore_errors: true
 
@@ -30,8 +28,6 @@
 
 - name: "Enable Suricata Packages via copr (Standard)"
   shell: dnf -y copr enable @oisf/suricata-{{ version }}
-  args:
-    warn: false
   when:
     - not proxy | bool
     - relay_host | default('') | length == 0
@@ -39,8 +35,6 @@
 
 - name: "Enable Suricata Packages via copr (Proxy)"
   shell: dnf -y copr enable @oisf/suricata-{{ version }}
-  args:
-    warn: false
   environment:
     http_proxy: "{{ proxy_protocol }}://{{ proxy_username }}:{{ proxy_password }}@{{ proxy_host }}:{{ proxy_port }}"
     https_proxy: "{{ proxy_protocol }}://{{ proxy_username }}:{{ proxy_password }}@{{ proxy_host }}:{{ proxy_port }}"
@@ -75,8 +69,6 @@
   block:
     - name: "Enable Suricata copr repo on the relay host"
       shell: dnf -y copr enable @oisf/suricata-{{ version }}
-      args:
-        warn: false
       delegate_to: "{{ relay_host }}"
 
     - name: "Create a temporary RPM cache directory on the relay host"
@@ -112,8 +104,6 @@
         dnf download --resolve -y
         --destdir={{ suricata_rpm_cache.path }}
         suricata
-      args:
-        warn: false
       delegate_to: "{{ relay_host }}"
 
     - name: "List the downloaded RPMs on the relay host"
@@ -155,8 +145,6 @@
 
     - name: "Install Suricata from the relayed RPMs (dnf)"
       shell: dnf install -y --nobest /tmp/suricata-rpms/*.rpm
-      args:
-        warn: false
       register: suricata_relay_install
       changed_when: "'Nothing to do' not in suricata_relay_install.stdout"
 

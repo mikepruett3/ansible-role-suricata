@@ -10,8 +10,6 @@
 
 - name: "Install Suricata (dnf)"
   shell: dnf install -y --nobest suricata
-  args:
-    warn: false
   register: dnf_suricata_install
   changed_when: "'Nothing to do' not in dnf_suricata_install.stdout"
   when:
